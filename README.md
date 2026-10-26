@@ -83,11 +83,17 @@ pip install -r requirements.txt
 
 export GCP_PROJECT="your-gcp-project-id"
 
-# fetch the hand histories (not vendored: ~39MB, not my data)
+# fetch the hand histories (not vendored: not my data)
+# the full repo is ~1.7GB; only these sources are used, so trim after cloning
 git clone https://github.com/uoftcprg/phh-dataset.git data
+rm -rf data/handhq data/.git        # leaves ~39MB
 
-python3 src/ingest.py          # writes hands.csv and hand_players.csv
-# load both CSVs into a BigQuery dataset named `pokerstudy`
+python3 src/ingest.py               # writes hands.csv and hand_players.csv
+
+bq mk --dataset "$GCP_PROJECT:pokerstudy"
+bq load --autodetect --source_format=CSV pokerstudy.hands hands.csv
+bq load --autodetect --source_format=CSV pokerstudy.hand_players hand_players.csv
+
 python3 src/coach.py "Which player had the best win rate per 100 hands?"
 ```
 
