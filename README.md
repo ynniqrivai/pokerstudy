@@ -6,6 +6,10 @@ Pluribus was the Facebook AI Research and Carnegie Mellon bot that beat five hum
 
 ```
 $ python3 src/coach.py "How often does Pluribus fold before the flop?"
+
+Takeaway: Pluribus folds 73.76% of its hands preflop, demonstrating that a
+world-class winning strategy requires playing a tight, disciplined range of
+about 26% of starting hands.
 ```
 
 ## Why this exists
@@ -72,7 +76,7 @@ Note that the self-correction loop deliberately does *not* retry on a guardrail 
 ## Running it
 
 ```bash
-git clone https://github.com/<you>/pokerstudy.git
+git clone https://github.com/ynniqrivai/pokerstudy.git
 cd pokerstudy
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
