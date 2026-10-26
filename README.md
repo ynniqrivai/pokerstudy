@@ -45,15 +45,30 @@ results ──── Gemini explains, grounded only in returned rows
 | `hands` | one row per hand | `source`, `variant`, `big_blind`, `actions` (PHH notation) |
 | `hand_players` | one row per player per hand | `net`, `net_bb`, `starting_stack`, `finishing_stack` |
 
-## The interesting part: getting it wrong first
+## Why the obvious query gives the wrong answer
 
-The first aggregate I ran was wrong in two different ways, and only one of them looked wrong.
+Ask "was Pluribus winning?" and the natural query is a sum of `net` grouped by
+player. It returns a confident, specific, wrong number.
 
-**Wrong in an obvious way.** The corpus has three sources — the Pluribus sessions (50/100 blinds), WSOP 2023 tournament hands (very high stakes), and a handful of famous single hands. I summed `net` across all of them, so one player showed a net of +25,200,000 against others in the hundreds. Tournament chips and cash-game chips are not the same unit. The number was arithmetically correct and semantically meaningless.
+**The easy trap.** The corpus spans three sources — Pluribus cash-game sessions
+at 50/100 blinds, WSOP 2023 tournament hands, and a few famous single hands.
+Summing `net` across them adds tournament chips to cash-game chips, which is why
+one player initially showed +25,200,000 against others in the hundreds. Obvious
+once seen, because the number is absurd.
 
-**Wrong in a dangerous way.** After fixing that and normalizing to big blinds per hand, Pluribus came out at roughly **−0.07 bb/hand**. The published result has Pluribus *winning* at about 48 mbb/game. That gap is not a bug. Ten thousand six-handed hands is nowhere near enough to resolve an edge that size from raw chip counts, which is precisely why the original researchers used AIVAT variance reduction rather than raw results.
+**The trap worth caring about.** Normalize to big blinds per hand, filter to the
+Pluribus sessions, and the bot comes out at roughly **−0.07 bb/hand**. The
+published result has Pluribus *winning* at about 48 mbb/game. That is not a bug
+in the pipeline.
 
-The second error is the one worth caring about. The first was caught because the number was absurd. The second produced a plausible figure I would have reported.
+Ten thousand six-handed hands is nowhere near enough to resolve an edge that
+size from raw chip counts. The standard deviation of the estimate swamps the
+effect. This is exactly why Brown and Sandholm reported AIVAT-adjusted results
+rather than raw winnings: without variance reduction, ten thousand hands cannot
+distinguish a strong winning strategy from a small losing one.
+
+The first error announces itself. The second produces a plausible figure that
+contradicts published work, and a reasonable person reports it.
 
 Both are now constraints the system cannot violate:
 
